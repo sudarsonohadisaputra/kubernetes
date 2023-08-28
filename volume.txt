@@ -1,0 +1,2 @@
+rook ceph
+use unformated hard drive

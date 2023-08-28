@@ -1,0 +1,34 @@
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: nginx-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: 'false'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - nurhamid.site
+      secretName: ssl-secret
+  rules:
+    - host: nurhamid.site
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: marketplace-api-service
+                port:
+                  number: 80
+          - path: /test
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service
+                port:
+                  number: 80

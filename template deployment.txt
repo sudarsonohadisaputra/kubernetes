@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: about-servicelb
+spec:
+  type: LoadBalancer
+  selector:
+    app: about-solubis
+    tier: aplikasi
+  ports:
+    - protocol: TCP
+      port: 9010
+      targetPort: 3000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aplikasi-about-solubis
+  labels:
+    app: about-solubis
+    tier: aplikasi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: about-solubis
+      tier: aplikasi
+  template:
+    metadata:
+      labels:
+        app: about-solubis
+        tier: aplikasi
+    spec:
+      containers:
+      - name: about-solubis-container
+        image: infrastructuresolubis/about-solubis-dev:saas-dev
+        ports:
+        - containerPort: 3000
+      imagePullSecrets:
+      - name: regcred

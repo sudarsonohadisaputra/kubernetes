@@ -1,0 +1,59 @@
+Link:
+
+https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+
+https://www.learnitguide.net/2020/10/install-kubernetes-dashboard-deploy.html
+
+https://upcloud.com/resources/tutorials/deploy-kubernetes-dashboard
+
+https://discuss.kubernetes.io/t/secret-token-not-generating/16923/14
+
+
+
+
+#deploy :
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+#Edit network service :
+
+kubectl -n kubernetes-dashboard edit svc kubernetes-dashboard ==> change ipcluster to LoadBalancer
+
+#show ip kubernetes dashboard
+kubectl -n kubernetes-dashboard get svc
+
+#Create token for login
+
+mkdir ~/dashboard && cd ~/dashboard
+
+nano dashboard-admin.yaml
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+
+
+kubectl apply -f dashboard-admin.yaml
+
+kubectl create token admin-user -n kubernetes-dashboard
+
+
+Token :
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImRnbjZFOERPMnRYSlc3RE5IWnIyVS1FQnNZcENsNnRQOXNsa085dWY5a3MifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjg0ODIxMzUyLCJpYXQiOjE2ODQ4MTc3NTIsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJhZG1pbi11c2VyIiwidWlkIjoiZjQ4ZWU1OGMtMjk1Yi00ZjJlLThjODUtNjM0NGRlNzVhYjE5In19LCJuYmYiOjE2ODQ4MTc3NTIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlcm5ldGVzLWRhc2hib2FyZDphZG1pbi11c2VyIn0.NFfYJXqAiOzN1hRnlFGL5xv6eji5AEP8cYG7gkEem3At7RoruO_X3mLLjX9tvauDl8nxQQ4k7WrYR4cc7RRs5i07hYFgPlP_Cv5Mzl_9-s66phy66UcROn-x7k7mdzxiuOpiQ2-NJncv_ENDNZlCRzrQ_BV9D5iIUbeNg91dTzgeiW_14Q55uugk-RdGxCY9nHLj9LSUYp1RZMNkLI0AeZ216p7BLMtL9yJQ09Dw25OLoVf7_swUOsSA9FALWPuxbO7nIFTKTIog2l0QjukMadr2mkAA2x-KYLmRpEPrXnAqKTa_IzMDn2LSrA59oAZ6T-QWQ7uqmnoYWrraywuVyw
+

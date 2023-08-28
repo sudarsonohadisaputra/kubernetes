@@ -1,0 +1,103 @@
+https://www.educative.io/courses/practical-guide-to-kubernetes
+
+
+
+redis
+stateless : tidak menyimpan data
+threshold : batasan
+
+
+
+https://computingforgeeks.com/deploy-kubernetes-cluster-on-ubuntu-with-kubeadm/
+
+https://computingforgeeks.com/install-mirantis-cri-dockerd-as-docker-engine-shim-for-kubernetes/
+
+https://docs.tigera.io/calico/latest/getting-started/kubernetes/quickstart
+
+https://metallb.universe.tf/configuration/_advanced_l2_configuration/
+
+
+
+
+kubeadm join 192.168.10.17:6443 --token csbdrc.x3m4foztpf7zkmue --discovery-token-ca-cert-hash sha256:0bd4a3d8928a575082c488fe47e8692b9537cd5c463e59ea438c2f1c5a61709c --cri-socket unix:///run/cri-dockerd.sock
+
+
+kubectl create secret docker-registry logindockerhub --docker-server=https://index.docker.io/v1/ --docker-username=infrastructuresolubis --docker-password=0dHA.solubis321!! --docker-email=infrastructure@solubis.com
+
+
+Pod :
+
+aplikasi.yml
+
+apiVersion: v1
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJpbmZyYXN0cnVjdHVyZXNvbHViaXMiLCJwYXNzd29yZCI6IjBkSEEuc29sdWJpczMyMSEhIiwiZW1haWwiOiJpbmZyYXN0cnVjdHVyZUBzb2x1YmlzLmNvbSIsImF1dGgiOiJhVzVtY21GemRISjFZM1IxY21WemIyeDFZbWx6T2pCa1NFRXVjMjlzZFdKcGN6TXlNU0VoIn19fQ==
+kind: Secret
+metadata:
+  name: logindockerhub
+type: kubernetes.io/dockerconfigjson
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: about-solubis
+    tier: aplikasi
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aplikasi-about-solubis
+  labels:
+    app: about-solubis
+    tier: aplikasi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: about-solubis
+      tier: aplikasi
+  template:
+    metadata:
+      labels:
+        app: about-solubis
+        tier: aplikasi
+    spec:
+      containers:
+      - name: about-solubis-container
+        image: infrastructuresolubis/about-solubis-dev:saas-dev
+        ports:
+        - containerPort: 80
+      imagePullSecrets:
+      - name: regcred
+
+
+
+
+
+
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=infrastructuresolubis --docker-password=0dHA.solubis321!! --docker-email=infrastructure@solubis.com
+
+
+kubectl create secret generic regcred \
+    --from-file=.dockerconfigjson=/home/infra/.docker/config.json \
+    --type=kubernetes.io/dockerconfigjson
+
+#edit ip pool
+kubectl edit ipaddresspools.metallb.io ippool -n metallb-system
+
+#scaling replika
+kubectl edit deployment.apps/aplikasi-about-solubis
+
+
+
+
